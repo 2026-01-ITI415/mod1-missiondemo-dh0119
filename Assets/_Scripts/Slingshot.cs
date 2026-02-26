@@ -5,12 +5,7 @@ using UnityEngine;
 public class Slingshot : MonoBehaviour{
     static private Slingshot S;
 
-    static public Vector3 LAUNCH_POS {                                        // b
-        get {
-            if (S == null ) return Vector3.zero;
-            return S.launchPos;
-        }
-    }
+
 
     [Header("Inscribed")]
     public GameObject projectilePrefab;
@@ -22,6 +17,13 @@ public class Slingshot : MonoBehaviour{
     public Vector3 launchPos;
     public GameObject projectile;
     public bool aimingMode;
+
+        static public Vector3 LAUNCH_POS {                                        // b
+        get {
+            if (S == null ) return Vector3.zero;
+            return S.launchPos;
+        }
+    }
 
     void Awake(){
         S = this;
@@ -79,9 +81,10 @@ public class Slingshot : MonoBehaviour{
         projRB.linearVelocity = -mouseDelta * velocityMult;
         FollowCam.POI = projectile;
         Instantiate<GameObject>(projLinePrefab, projectile.transform);
-            projectile = null;
+            
             MissionDemolition.ShotFired();
             ProjectileLine.S.poi = projectile;
+            projectile = null;
             }
         }
     }
