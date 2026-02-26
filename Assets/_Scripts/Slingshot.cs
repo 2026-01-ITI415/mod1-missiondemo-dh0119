@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Slingshot : MonoBehaviour{
+    static private Slingshot S;
+
+    static public Vector3 LAUNCH_POS {                                        // b
+        get {
+            if (S == null ) return Vector3.zero;
+            return S.launchPos;
+        }
+    }
 
     [Header("Inscribed")]
     public GameObject projectilePrefab;
@@ -16,61 +24,64 @@ public class Slingshot : MonoBehaviour{
     public bool aimingMode;
 
     void Awake(){
+        S = this;
         Transform launchPointTrans = transform.Find("LaunchPoint");
         launchPoint = launchPointTrans.gameObject;
         launchPoint.SetActive(false);
-        launchPos = launchPointTrans.position;
+        launchPos = launchPointTrans.position; 
     }
- 
+
  void OnMouseEnter(){
-    //print("Slingshot:OnMouseEnter()");
+        //print("Slingshot:OnMouseEnter()");
     launchPoint.SetActive(true);
- }
+    }
 
  void OnMouseExit(){
-    //print("Slingshot:OnMouseExit()");
+        //print("Slingshot:OnMouseExit()");
     launchPoint.SetActive(false);
- }
+    }
 
  void OnMouseDown(){
 
-    aimingMode = true;
+        aimingMode = true;
 
     projectile = Instantiate(projectilePrefab) as GameObject;
 
-    projectile.transform.position = launchPos;
+        projectile.transform.position = launchPos;
 
-    projectile.GetComponent<Rigidbody>().isKinematic = true;
- }
+        projectile.GetComponent<Rigidbody>().isKinematic = true;
+    }
  void Update(){
 
-    if (!aimingMode) return;
+        if (!aimingMode) return;                                             
 
-    Vector3 mousePos2D = Input.mousePosition;
-    mousePos2D.z = -Camera.main.transform.position.z;
+        Vector3 mousePos2D = Input.mousePosition;                              
+        mousePos2D.z = -Camera.main.transform.position.z;
     Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(mousePos2D);
 
     Vector3 mouseDelta = mousePos3D -launchPos;
 
-    float maxMagnitude = this.GetComponent<SphereCollider>().radius;
+        float maxMagnitude = this.GetComponent<SphereCollider>().radius;
     if (mouseDelta.magnitude > maxMagnitude){
-        mouseDelta.Normalize();
+            mouseDelta.Normalize();
         mouseDelta*= maxMagnitude;
-    }
+        }
 
-    Vector3 projPos = launchPos + mouseDelta;
-    projectile.transform.position = projPos;
+        Vector3 projPos = launchPos + mouseDelta;
+        projectile.transform.position = projPos;
 
     if(Input.GetMouseButtonUp(0)){
 
-        aimingMode = false;
+            aimingMode = false;
         Rigidbody projRB = projectile.GetComponent<Rigidbody>();
         projRB.isKinematic = false;
         projRB.collisionDetectionMode = CollisionDetectionMode.Continuous;
         projRB.linearVelocity = -mouseDelta * velocityMult;
         FollowCam.POI = projectile;
         Instantiate<GameObject>(projLinePrefab, projectile.transform);
-        projectile = null;
+            projectile = null;
+            MissionDemolition.ShotFired();
+            ProjectileLine.S.poi = projectile;
+            }
+        }
     }
- }
-}
